@@ -1,0 +1,63 @@
+
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: olapbd2025-app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+    networks:
+      - olap-network
+
+  webserver:
+    image: nginx:alpine
+    container_name: olapbd2025-webserver
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx:/etc/nginx/conf.d
+    networks:
+      - olap-network
+
+  postgres:
+    image: postgres:15
+    container_name: olapbd2025-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: olap_dw
+      POSTGRES_USER: olap_user
+      POSTGRES_PASSWORD: olap_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgresql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - olap-network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: olapbd2025-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@olap.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "5050:80"
+    networks:
+      - olap-network
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  olap-network:
+    driver: bridge
