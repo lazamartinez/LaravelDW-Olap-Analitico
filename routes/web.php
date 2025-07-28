@@ -1,32 +1,21 @@
 <?php
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\OlapController;
-use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\SucursalController;
 
-// API Routes
-Route::prefix('api')->middleware('api')->group(function () {
-    Route::prefix('olap')->group(function () {
-        Route::get('/sales', [OlapController::class, 'salesAnalysis']);
-        Route::get('/sales/drill-down', [OlapController::class, 'salesDrillDown']);
-        Route::get('/sales/roll-up', [OlapController::class, 'salesRollUp']);
-        Route::get('/sales/pivot', [OlapController::class, 'salesPivot']);
-    });
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    return $request->user();
 });
 
-// Ruta de login (si necesitas autenticación)
-Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [LoginController::class, 'login']);
+Route::apiResource('sucursales', SucursalController::class);
 
-// Ruta de logout
-Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-
-// Frontend Routes
-Route::get('/', function () {
-    return view('app');
-})->name('home'); // Removí el middleware('auth') temporalmente para pruebas
-
-// Ruta catch-all para Vue Router
+// Ruta para Vue (SPA)
 Route::get('/{any}', function () {
     return view('app');
-})->where('any', '.*');
+})->where('any', '^(?!api).*$'); // Excluye rutas que empiecen con 'api'
+
+// Ruta API separada
+Route::prefix('api')->group(function () {
+    Route::apiResource('sucursales', SucursalController::class);
+});

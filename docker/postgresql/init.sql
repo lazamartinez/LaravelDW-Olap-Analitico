@@ -1,71 +1,80 @@
-﻿-- Script de inicialización para el Data Warehouse OLAP
+﻿-- docker/postgresql/init.sql
 CREATE SCHEMA dw;
 
 -- Dimensión Tiempo
 CREATE TABLE dw.dim_tiempo (
     tiempo_id SERIAL PRIMARY KEY,
-    fecha DATE NOT NULL,
+    fecha DATE NOT NULL UNIQUE,
     dia INTEGER NOT NULL,
     mes INTEGER NOT NULL,
-    año INTEGER NOT NULL,
+    anio INTEGER NOT NULL,
     trimestre INTEGER NOT NULL,
     dia_semana INTEGER NOT NULL,
     nombre_dia VARCHAR(10) NOT NULL,
     nombre_mes VARCHAR(10) NOT NULL,
-    es_fin_de_semana BOOLEAN NOT NULL,
-    UNIQUE(fecha)
+    es_fin_semana BOOLEAN NOT NULL
 );
 
 -- Dimensión Producto
 CREATE TABLE dw.dim_producto (
     producto_id SERIAL PRIMARY KEY,
-    codigo_producto VARCHAR(50) NOT NULL,
+    codigo VARCHAR(50) NOT NULL UNIQUE,
     nombre VARCHAR(100) NOT NULL,
     categoria VARCHAR(50) NOT NULL,
     subcategoria VARCHAR(50),
-    precio NUMERIC(10,2) NOT NULL,
-    UNIQUE(codigo_producto)
+    precio_base DECIMAL(10,2) NOT NULL,
+    costo DECIMAL(10,2) NOT NULL,
+    fecha_creacion TIMESTAMP DEFAULT NOW(),
+    fecha_actualizacion TIMESTAMP DEFAULT NOW()
 );
 
 -- Dimensión Cliente
 CREATE TABLE dw.dim_cliente (
     cliente_id SERIAL PRIMARY KEY,
-    codigo_cliente VARCHAR(50) NOT NULL,
+    identificacion VARCHAR(20) NOT NULL UNIQUE,
     nombre VARCHAR(100) NOT NULL,
     apellido VARCHAR(100) NOT NULL,
     provincia VARCHAR(50) NOT NULL,
-    ciudad VARCHAR(50) NOT NULL,
-    segmento VARCHAR(50),
-    UNIQUE(codigo_cliente)
+    canton VARCHAR(50),
+    distrito VARCHAR(50),
+    fecha_nacimiento DATE,
+    segmento VARCHAR(50)
 );
 
--- Dimensión Sucursal
+-- Dimensión Sucursal (CRUD que necesitas)
 CREATE TABLE dw.dim_sucursal (
     sucursal_id SERIAL PRIMARY KEY,
-    codigo_sucursal VARCHAR(50) NOT NULL,
+    codigo VARCHAR(20) NOT NULL UNIQUE,
     nombre VARCHAR(100) NOT NULL,
     provincia VARCHAR(50) NOT NULL,
-    ciudad VARCHAR(50) NOT NULL,
-    direccion VARCHAR(200),
-    UNIQUE(codigo_sucursal)
+    canton VARCHAR(50) NOT NULL,
+    distrito VARCHAR(50) NOT NULL,
+    direccion_exacta TEXT,
+    telefono VARCHAR(20),
+    horario TEXT,
+    fecha_apertura DATE NOT NULL,
+    activa BOOLEAN DEFAULT TRUE,
+    fecha_creacion TIMESTAMP DEFAULT NOW(),
+    fecha_actualizacion TIMESTAMP DEFAULT NOW()
 );
 
 -- Tabla de Hechos Ventas
 CREATE TABLE dw.fact_ventas (
-    venta_id SERIAL PRIMARY KEY,
+    venta_id BIGSERIAL PRIMARY KEY,
     tiempo_id INTEGER REFERENCES dw.dim_tiempo(tiempo_id),
     producto_id INTEGER REFERENCES dw.dim_producto(producto_id),
     cliente_id INTEGER REFERENCES dw.dim_cliente(cliente_id),
     sucursal_id INTEGER REFERENCES dw.dim_sucursal(sucursal_id),
     cantidad_vendida INTEGER NOT NULL,
-    monto_total NUMERIC(12,2) NOT NULL,
-    costo_total NUMERIC(12,2) NOT NULL,
-    margen NUMERIC(12,2) NOT NULL
+    monto_total DECIMAL(12,2) NOT NULL,
+    descuento_total DECIMAL(12,2) DEFAULT 0,
+    costo_total DECIMAL(12,2) NOT NULL,
+    margen_ganancia DECIMAL(12,2) NOT NULL,
+    metodo_pago VARCHAR(50) NOT NULL
 );
 
--- Crear índices para mejorar el rendimiento OLAP
+-- Índices para optimización
 CREATE INDEX idx_fact_ventas_tiempo ON dw.fact_ventas(tiempo_id);
 CREATE INDEX idx_fact_ventas_producto ON dw.fact_ventas(producto_id);
-CREATE INDEX idx_fact_ventas_cliente ON dw.fact_ventas(cliente_id);
 CREATE INDEX idx_fact_ventas_sucursal ON dw.fact_ventas(sucursal_id);
-CREATE INDEX idx_dim_tiempo_fecha ON dw.dim_tiempo(fecha);
+CREATE INDEX idx_fact_ventas_cliente ON dw.fact_ventas(cliente_id);

@@ -2,25 +2,24 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class DimensionStore extends Model
 {
-    use HasFactory;
-
-    protected $table = 'dw.dim_store';
-    protected $primaryKey = 'store_id';
+    protected $table = 'dw.dim_sucursal';
+    protected $primaryKey = 'sucursal_id';
     public $timestamps = false;
-
+    
     protected $fillable = [
-        'code',
-        'name',
-        'address',
-        'city',
-        'province',
-        'postal_code',
-        'latitude',
-        'longitude'
+        'codigo',
+        'nombre',
+        'provincia',
+        'canton',
+        'distrito',
+        'direccion_exacta',
+        'telefono',
+        'horario',
+        'fecha_apertura',
+        'activa'
     ];
 }

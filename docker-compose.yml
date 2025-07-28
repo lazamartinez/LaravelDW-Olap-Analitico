@@ -20,7 +20,8 @@ services:
     environment:
       - VITE_DEV_SERVER_HOST=0.0.0.0
       - VITE_DEV_SERVER_PORT=5173
-      - VITE_APP_URL=http://localhost:5173
+      - VITE_APP_URL=http://localhost:8000
+      - VITE_BACKEND_URL=http://localhost:8000
 
   webserver:
     image: nginx:alpine

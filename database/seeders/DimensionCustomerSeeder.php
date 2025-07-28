@@ -10,11 +10,24 @@ class DimensionCustomerSeeder extends Seeder
     public function run()
     {
         $customers = [
-            ['first_name' => 'Juan', 'last_name' => 'Pérez', 'city' => 'Madrid', 'province' => 'Madrid'],
-            ['first_name' => 'María', 'last_name' => 'Gómez', 'city' => 'Barcelona', 'province' => 'Barcelona'],
-            ['first_name' => 'Carlos', 'last_name' => 'López', 'city' => 'Valencia', 'province' => 'Valencia'],
-            ['first_name' => 'Ana', 'last_name' => 'Martínez', 'city' => 'Sevilla', 'province' => 'Sevilla'],
-            ['first_name' => 'Luis', 'last_name' => 'Rodríguez', 'city' => 'Zaragoza', 'province' => 'Zaragoza'],
+            [
+                'identificacion' => '101110111',
+                'nombre' => 'Juan',
+                'apellido' => 'Pérez',
+                'provincia' => 'San José',
+                'canton' => 'Central',
+                'distrito' => 'Carmen',
+                'segmento' => 'Premium'
+            ],
+            [
+                'identificacion' => '202220222',
+                'nombre' => 'María',
+                'apellido' => 'Gómez',
+                'provincia' => 'Alajuela',
+                'canton' => 'Central',
+                'distrito' => 'San Rafael',
+                'segmento' => 'Regular'
+            ]
         ];
 
         foreach ($customers as $customer) {

@@ -1,0 +1,45 @@
+.navbar {
+    background-color: map-get($colors, white);
+    @include shadow(1);
+    padding: map-get($spacing, sm) 0;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  
+    &-container {
+      @include flex(row, space-between, center);
+    }
+  
+    &-brand {
+      font-size: map-get($font-sizes, large);
+      font-weight: 700;
+      color: map-get($colors, primary);
+      text-decoration: none;
+    }
+  
+    &-nav {
+      @include flex(row, flex-end, center);
+      list-style: none;
+      gap: map-get($spacing, md);
+    }
+  
+    &-link {
+      color: map-get($colors, text-primary);
+      text-decoration: none;
+      @include transition();
+  
+      &:hover {
+        color: map-get($colors, primary);
+      }
+  
+      &.active {
+        font-weight: 600;
+        color: map-get($colors, primary);
+      }
+    }
+  
+    @include respond-to(md) {
+      padding: map-get($spacing, md) 0;
+    }
+  }
+  

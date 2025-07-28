@@ -12,18 +12,18 @@ class DimensionTimeSeeder extends Seeder
     {
         $startDate = Carbon::now()->subYears(2);
         $endDate = Carbon::now();
-        
+
         for ($date = $startDate; $date->lte($endDate); $date->addDay()) {
             DimensionTime::create([
-                'date' => $date->format('Y-m-d'),
-                'day' => $date->day,
-                'month' => $date->month,
-                'year' => $date->year,
-                'quarter' => ceil($date->month / 3),
-                'day_of_week' => $date->dayOfWeek,
-                'day_name' => $date->englishDayOfWeek,
-                'month_name' => $date->englishMonth,
-                'is_weekend' => $date->isWeekend(),
+                'fecha' => $date->format('Y-m-d'),
+                'dia' => $date->day,
+                'mes' => $date->month,
+                'anio' => $date->year,
+                'trimestre' => ceil($date->month / 3),
+                'dia_semana' => $date->dayOfWeek,
+                'nombre_dia' => $date->isoFormat('dddd'),
+                'nombre_mes' => $date->isoFormat('MMMM'),
+                'es_fin_semana' => $date->isWeekend(),
             ]);
         }
     }

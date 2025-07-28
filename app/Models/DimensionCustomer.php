@@ -2,25 +2,22 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class DimensionCustomer extends Model
 {
-    use HasFactory;
-
-    protected $table = 'dw.dim_customer';
-    protected $primaryKey = 'customer_id';
+    protected $table = 'dw.dim_cliente';
+    protected $primaryKey = 'cliente_id';
     public $timestamps = false;
-
+    
     protected $fillable = [
-        'first_name',
-        'last_name',
-        'email',
-        'phone',
-        'address',
-        'city',
-        'province',
-        'postal_code'
+        'identificacion',
+        'nombre',
+        'apellido',
+        'provincia',
+        'canton',
+        'distrito',
+        'fecha_nacimiento',
+        'segmento'
     ];
 }

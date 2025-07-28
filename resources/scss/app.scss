@@ -1,7 +1,11 @@
+// Debe ser lo PRIMERO en el archivo
+@use './variables' as *;
+@use '@/scss/mixins' as *;
+@use '@/scss/components/buttons';
+@use '@/scss/components/forms';
 
-@import 'variables';
-@import 'mixins';
-@import 'base';
-@import 'layout';
-@import 'components';
-@import 'charts';
+/* Luego el resto de reglas CSS */
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background-color: map-get($colors, background);
+}

@@ -10,10 +10,28 @@ class DimensionStoreSeeder extends Seeder
     public function run()
     {
         $stores = [
-            ['code' => 'ST001', 'name' => 'Supermercado Centro', 'address' => 'Calle Mayor 10', 'city' => 'Madrid', 'province' => 'Madrid'],
-            ['code' => 'ST002', 'name' => 'Supermercado Norte', 'address' => 'Avenida Diagonal 100', 'city' => 'Barcelona', 'province' => 'Barcelona'],
-            ['code' => 'ST003', 'name' => 'Supermercado Este', 'address' => 'Calle Colón 50', 'city' => 'Valencia', 'province' => 'Valencia'],
-            ['code' => 'ST004', 'name' => 'Supermercado Sur', 'address' => 'Calle Sierpes 20', 'city' => 'Sevilla', 'province' => 'Sevilla'],
+            [
+                'codigo' => 'SUC001',
+                'nombre' => 'Sucursal Central',
+                'provincia' => 'San José',
+                'canton' => 'Central',
+                'distrito' => 'Carmen',
+                'direccion_exacta' => 'Avenida Central, Calle 5',
+                'telefono' => '22222222',
+                'fecha_apertura' => '2020-01-15',
+                'activa' => true
+            ],
+            [
+                'codigo' => 'SUC002',
+                'nombre' => 'Sucursal Oeste',
+                'provincia' => 'San José',
+                'canton' => 'Escazú',
+                'distrito' => 'San Rafael',
+                'direccion_exacta' => 'Calle Blancos, 200m oeste del mall',
+                'telefono' => '22332233',
+                'fecha_apertura' => '2021-03-10',
+                'activa' => true
+            ]
         ];
 
         foreach ($stores as $store) {

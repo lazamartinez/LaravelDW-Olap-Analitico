@@ -13,7 +13,7 @@ class DatabaseSeeder extends Seeder
             DimensionProductSeeder::class,
             DimensionCustomerSeeder::class,
             DimensionStoreSeeder::class,
-            FactSalesSeeder::class,
+            FactSaleSeeder::class,
         ]);
     }
 }
