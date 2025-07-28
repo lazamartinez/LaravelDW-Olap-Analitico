@@ -7,10 +7,7 @@ export default defineConfig({
     plugins: [
         laravel({
             input: 'resources/js/app.js',
-            refresh: [
-                'resources/views/**',
-                'resources/js/**',
-            ],
+            refresh: true
         }),
         vue({
             template: {
@@ -29,17 +26,25 @@ export default defineConfig({
         },
     },
     server: {
-        host: '0.0.0.0',
+        host: true, // Cambiado de '0.0.0.0' a true
         port: 5173,
         strictPort: true,
         hmr: {
             host: 'localhost',
             protocol: 'ws',
+            port: 5173
         },
+        watch: {
+            usePolling: true,
+            interval: 1000
+        },
+        cors: true,
+        origin: 'http://localhost:5173'
     },
     build: {
         manifest: true,
         outDir: 'public/build',
+        emptyOutDir: true,
         rollupOptions: {
             input: {
                 app: path.resolve(__dirname, 'resources/js/app.js')

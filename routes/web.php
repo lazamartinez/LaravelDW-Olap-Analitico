@@ -3,7 +3,6 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\OlapController;
 use App\Http\Controllers\Auth\LoginController;
-use Illuminate\Support\Facades\Auth;
 
 // API Routes
 Route::prefix('api')->middleware('api')->group(function () {
@@ -15,14 +14,19 @@ Route::prefix('api')->middleware('api')->group(function () {
     });
 });
 
-// Auth Routes
-// Auth::routes(['register' => false]); // Desactiva el registro si no lo necesitas
+// Ruta de login (si necesitas autenticación)
+Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [LoginController::class, 'login']);
+
+// Ruta de logout
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // Frontend Routes
 Route::get('/', function () {
     return view('app');
-})->middleware('auth')->name('home');
+})->name('home'); // Removí el middleware('auth') temporalmente para pruebas
 
+// Ruta catch-all para Vue Router
 Route::get('/{any}', function () {
     return view('app');
-})->where('any', '.*')->middleware('auth');
+})->where('any', '.*');
