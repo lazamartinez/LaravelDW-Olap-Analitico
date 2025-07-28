@@ -1,51 +1,39 @@
 <template>
-    <div class="layout-wrapper">
-      <Navbar />
+  <div class="main-layout">
+    <Navbar />
+    <div class="layout-container">
       <Sidebar />
-      
-      <div class="layout-main-container">
-        <div class="layout-main">
-          <Toast />
-          <router-view v-slot="{ Component }">
-            <transition name="fade" mode="out-in">
-              <component :is="Component" />
-            </transition>
-          </router-view>
-        </div>
-        <Footer />
-      </div>
+      <main class="content">
+        <slot />
+      </main>
     </div>
-  </template>
-  
-  <script>
-  import Navbar from './Navbar.vue'
-  import Sidebar from './Sidebar.vue'
-  import Footer from './Footer.vue'
-  import Toast from 'primevue/toast'
-  
-  export default {
-    components: { Navbar, Sidebar, Footer, Toast }
+  </div>
+</template>
+
+<script>
+import Navbar from './Navbar.vue'
+import Sidebar from './Sidebar.vue'
+
+export default {
+  components: {
+    Navbar,
+    Sidebar
   }
-  </script>
-  
-  <style lang="scss" scoped>
-  .layout-wrapper {
-    min-height: 100vh;
-    
-    .layout-main-container {
-      margin-left: 250px;
-      padding: 2rem;
-      transition: margin-left 0.3s;
-    }
-  }
-  
-  .fade-enter-active,
-  .fade-leave-active {
-    transition: opacity 0.3s ease;
-  }
-  
-  .fade-enter-from,
-  .fade-leave-to {
-    opacity: 0;
-  }
-  </style>
+}
+</script>
+
+<style scoped>
+.main-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+.layout-container {
+  display: flex;
+  flex: 1;
+}
+.content {
+  flex: 1;
+  padding: 20px;
+}
+</style>

@@ -1,10 +1,22 @@
-import DataTable from 'primevue/datatable'
-import Column from 'primevue/column'
-import Button from 'primevue/button'
-import Card from 'primevue/card'
+import './bootstrap';
+import { createApp } from 'vue';
+import App from './App.vue';
+import router from './router';
+import PrimeVue from 'primevue/config';
+import ToastService from 'primevue/toastservice';
 
-const app = createApp(App)
-app.component('DataTable', DataTable)
-app.component('Column', Column)
-app.component('Button', Button)
-app.component('Card', Card)
+// Theme and CSS
+import 'primevue/resources/themes/saga-blue/theme.css';
+import 'primevue/resources/primevue.min.css';
+import 'primeicons/primeicons.css';
+import '../css/app.css';
+
+const app = createApp(App);
+
+// Plugins
+app.use(router);
+app.use(PrimeVue);
+app.use(ToastService);
+
+// Mount the app
+app.mount('#app');

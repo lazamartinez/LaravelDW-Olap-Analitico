@@ -1,0 +1,30 @@
+// Colores
+$primary: #4361ee;
+$secondary: #3f37c9;
+$accent: #4895ef;
+$dark: #1b263b;
+$light: #f8f9fa;
+$success: #4cc9f0;
+$warning: #f8961e;
+$danger: #f72585;
+
+// Tipografía
+$font-main: 'Segoe UI', system-ui, sans-serif;
+$font-heading: 'Montserrat', sans-serif;
+$base-font-size: 16px;
+
+// Espaciado
+$spacing-unit: 1rem;
+$spacings: (
+  0: 0,
+  1: $spacing-unit * 0.25,
+  2: $spacing-unit * 0.5,
+  3: $spacing-unit,
+  4: $spacing-unit * 1.5,
+  5: $spacing-unit * 3
+);
+
+// Sombras
+$shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
+$shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+$shadow-lg: 0 10px 25px rgba(0,0,0,0.1);

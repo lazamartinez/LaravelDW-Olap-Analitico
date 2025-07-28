@@ -1,0 +1,37 @@
+.app-container {
+  display: grid;
+  grid-template-areas:
+    "sidebar header"
+    "sidebar main";
+  grid-template-columns: 240px 1fr;
+  grid-template-rows: auto 1fr;
+  min-height: 100vh;
+
+  @include responsive(tablet) {
+    grid-template-areas:
+      "header"
+      "main";
+    grid-template-columns: 1fr;
+  }
+}
+
+header {
+  grid-area: header;
+  background: white;
+  padding: map-get($spacings, 3);
+  box-shadow: $shadow-sm;
+  z-index: 10;
+}
+
+.sidebar {
+  grid-area: sidebar;
+  background: $dark;
+  color: white;
+  padding: map-get($spacings, 4);
+}
+
+.main-content {
+  grid-area: main;
+  padding: map-get($spacings, 4);
+  overflow-y: auto;
+}

@@ -1,9 +1,11 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\OlapController;
+use App\Http\Controllers\Auth\LoginController;
+use Illuminate\Support\Facades\Auth;
 
+// API Routes
 Route::prefix('api')->middleware('api')->group(function () {
     Route::prefix('olap')->group(function () {
         Route::get('/sales', [OlapController::class, 'salesAnalysis']);
@@ -13,10 +15,14 @@ Route::prefix('api')->middleware('api')->group(function () {
     });
 });
 
-Auth::routes();
+// Auth Routes
+// Auth::routes(['register' => false]); // Desactiva el registro si no lo necesitas
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+// Frontend Routes
+Route::get('/', function () {
+    return view('app');
+})->middleware('auth')->name('home');
 
 Route::get('/{any}', function () {
     return view('app');
-})->where('any', '.*');
+})->where('any', '.*')->middleware('auth');

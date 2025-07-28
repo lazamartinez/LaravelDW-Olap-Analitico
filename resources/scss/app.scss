@@ -1,41 +1,7 @@
-// Variables
-$primary-color: #3B82F6;
-$secondary-color: #64748B;
-$dark-color: #1E293B;
 
-// Base Styles
-body {
-  font-family: 'Inter', sans-serif;
-  margin: 0;
-  padding: 0;
-  color: $dark-color;
-}
-
-.p-card {
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  
-  .p-card-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: $dark-color;
-  }
-}
-
-// Layout
-.layout-main-container {
-  padding: 2rem;
-  margin-left: 280px;
-  transition: margin-left 0.3s;
-}
-
-// Transiciones
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
+@import 'variables';
+@import 'mixins';
+@import 'base';
+@import 'layout';
+@import 'components';
+@import 'charts';

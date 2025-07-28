@@ -4,30 +4,27 @@ import axios from 'axios'
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null,
-    token: localStorage.getItem('token') || null
+    token: localStorage.getItem('auth_token') || null
   }),
-  
   actions: {
     async login(credentials) {
-      const response = await axios.post('/login', credentials)
-      this.token = response.data.token
-      localStorage.setItem('token', this.token)
-      await this.fetchUser()
+      try {
+        const response = await axios.post('/api/login', credentials)
+        this.token = response.data.token
+        this.user = response.data.user
+        localStorage.setItem('auth_token', this.token)
+        return true
+      } catch (error) {
+        console.error('Login error:', error)
+        return false
+      }
     },
-    
-    async fetchUser() {
-      const response = await axios.get('/api/user')
-      this.user = response.data
-    },
-    
     logout() {
-      axios.post('/logout')
-      this.user = null
       this.token = null
-      localStorage.removeItem('token')
+      this.user = null
+      localStorage.removeItem('auth_token')
     }
   },
-  
   getters: {
     isAuthenticated: (state) => !!state.token
   }

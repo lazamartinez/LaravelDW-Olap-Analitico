@@ -9,7 +9,7 @@ services:
     volumes:
       - ./:/var/www
     ports:
-      - "5173:5173"        # <-- mapeo del puerto Vite del contenedor al host
+      - "9000:9000"        
     networks:
       - olap-network
 

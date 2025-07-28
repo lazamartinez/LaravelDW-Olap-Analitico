@@ -1,50 +1,63 @@
 <template>
-    <div class="grid">
-      <div class="col-12">
-        <div class="grid">
-          <div class="col-12 md:col-6 lg:col-3">
-            <MetricCard 
-              title="Ventas Totales" 
-              :value="totalSales" 
-              icon="pi pi-dollar"
-              color="bg-blue-500"
-            />
+  <MainLayout>
+    <div class="main-content">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Tarjeta de Resumen -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Resumen General</h3>
+            <button class="btn btn-outline">Ver Detalles</button>
           </div>
-          <!-- Más métricas -->
+          <SalesChart :data="salesData" />
         </div>
-  
-        <TabView class="mt-5">
-          <TabPanel header="Análisis General">
-            <SalesAnalysis />
-          </TabPanel>
-          <TabPanel header="Drill-Down">
-            <DrillDownAnalysis />
-          </TabPanel>
-          <TabPanel header="Tabla Pivot">
-            <PivotAnalysis />
-          </TabPanel>
-          <TabPanel header="Roll-Up">
-            <RollUpAnalysis />
-          </TabPanel>
-        </TabView>
+
+        <!-- Gráfico de Categorías -->
+        <div class="card">
+          <div class="chart-header">
+            <h3>Ventas por Categoría</h3>
+            <div class="chart-actions">
+              <button class="btn btn-primary">Exportar</button>
+            </div>
+          </div>
+          <CategoryPieChart :data="categoryData" />
+        </div>
       </div>
     </div>
-  </template>
-  
-  <script setup>
-  import { ref, onMounted } from 'vue'
-  import { useOlapStore } from '../stores/olap'
-  import SalesAnalysis from '../components/olap/SalesAnalysis.vue'
-  import DrillDownAnalysis from '../components/olap/DrillDownAnalysis.vue'
-  import PivotAnalysis from '../components/olap/PivotAnalysis.vue'
-  import RollUpAnalysis from '../components/olap/RollUpAnalysis.vue'
-  import MetricCard from '../components/ui/MetricCard.vue'
-  
-  const olapStore = useOlapStore()
-  const totalSales = ref(0)
-  
-  onMounted(async () => {
-    await olapStore.fetchSalesData()
-    totalSales.value = olapStore.metrics.total_sales
-  })
-  </script>
+  </MainLayout>
+</template>
+
+<script>
+import MainLayout from '@/ui/MainLayout.vue';
+import SalesChart from '@/charts/SalesChart.vue';
+import CategoryPieChart from '@/charts/CategoryPieChart.vue';
+
+export default {
+  components: {
+    MainLayout,
+    SalesChart,
+    CategoryPieChart
+  },
+  data() {
+    return {
+      salesData: [],
+      categoryData: []
+    }
+  },
+  async mounted() {
+    await this.fetchData();
+  },
+  methods: {
+    async fetchData() {
+      // Lógica para obtener datos
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+// Estilos específicos del componente si son necesarios
+.grid {
+  display: grid;
+  gap: map-get($spacings, 4);
+}
+</style>

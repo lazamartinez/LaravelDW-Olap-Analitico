@@ -1,0 +1,26 @@
+.chart-container {
+  @include card-style;
+  padding: map-get($spacings, 3);
+  height: 100%;
+  
+  canvas {
+    width: 100% !important;
+    height: auto !important;
+  }
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: map-get($spacings, 3);
+  
+  h3 {
+    color: $dark;
+    font-size: 1.1rem;
+  }
+  
+  .chart-actions {
+    display: flex;
+    gap: map-get($spacings, 2);
+  }
+}

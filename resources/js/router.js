@@ -1,7 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
-
-// Vistas
 import DashboardView from '@/views/DashboardView.vue'
 import SalesView from '@/views/SalesView.vue'
 import ProductsView from '@/views/ProductsView.vue'
@@ -29,8 +26,7 @@ const routes = [
   {
     path: '/login',
     name: 'login',
-    component: LoginView,
-    meta: { requiresGuest: true }
+    component: LoginView
   }
 ]
 
@@ -40,12 +36,10 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  const authStore = useAuthStore()
+  const isAuthenticated = localStorage.getItem('auth_token')
   
-  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+  if (to.meta.requiresAuth && !isAuthenticated) {
     next('/login')
-  } else if (to.meta.requiresGuest && authStore.isAuthenticated) {
-    next('/')
   } else {
     next()
   }
