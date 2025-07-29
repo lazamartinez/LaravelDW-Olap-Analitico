@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite';  // Esta línea debe estar presente
+import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
 import vue from '@vitejs/plugin-vue';
 import path from 'path';
@@ -30,7 +30,7 @@ export default defineConfig({
         },
     },
     server: {
-        host: '0.0.0.0', // Importante para Docker
+        host: '0.0.0.0',
         port: 5173,
         strictPort: true,
         hmr: {
@@ -43,7 +43,20 @@ export default defineConfig({
             interval: 1000
         },
         cors: true,
-        origin: 'http://localhost:8000' // Cambiado para que coincida con Nginx
+        // Configuración de proxy crítica para las API calls
+        proxy: {
+            '/api': {
+                target: 'http://webserver:80', // Usamos el nombre del servicio de nginx
+                changeOrigin: true,
+                secure: false,
+                rewrite: (path) => path.replace(/^\/api/, '/api')
+            },
+            '/sanctum': {
+                target: 'http://webserver:80',
+                changeOrigin: true,
+                secure: false
+            }
+        }
     },
     build: {
         manifest: true,
@@ -59,10 +72,10 @@ export default defineConfig({
         preprocessorOptions: {
             scss: {
                 additionalData: `
-              @use "@/scss/variables" as *;
-              @use "@/scss/mixins" as *;
-            `,
-                quietDeps: true // Silencia warnings de deprecación
+                    @use "@/scss/variables" as *;
+                    @use "@/scss/mixins" as *;
+                `,
+                quietDeps: true
             }
         }
     }
