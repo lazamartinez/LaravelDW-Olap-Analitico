@@ -2,14 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Sucursal;
+use App\Models\DimensionStore;
 use Illuminate\Http\Request;
 
 class SucursalController extends Controller
 {
     public function index()
     {
-        return response()->json(Sucursal::all());
+        $sucursales = DimensionStore::paginate(10);
+        return view('sucursales.index', compact('sucursales'));
+    }
+
+    public function create()
+    {
+        return view('sucursales.create');
     }
 
     public function store(Request $request)
@@ -27,39 +33,48 @@ class SucursalController extends Controller
             'activa' => 'boolean'
         ]);
 
-        $sucursal = Sucursal::create($validated);
-        return response()->json($sucursal, 201);
+        $sucursal = DimensionStore::create($validated);
+
+        return redirect()->route('sucursales.index')
+            ->with('success', 'Sucursal creada exitosamente');
     }
 
-    public function show($id)
+    public function show(DimensionStore $sucursal)
     {
-        return response()->json(Sucursal::findOrFail($id));
+        return view('sucursales.show', compact('sucursal'));
     }
 
-    public function update(Request $request, $id)
+    public function edit(DimensionStore $sucursal)
     {
-        $sucursal = Sucursal::findOrFail($id);
-        
+        return view('sucursales.edit', compact('sucursal'));
+    }
+
+    public function update(Request $request, DimensionStore $sucursal)
+    {
         $validated = $request->validate([
-            'codigo' => 'sometimes|required|unique:dw.dim_sucursal,codigo,'.$id.',sucursal_id|max:20',
-            'nombre' => 'sometimes|required|max:100',
-            'provincia' => 'sometimes|required|max:50',
-            'canton' => 'sometimes|required|max:50',
-            'distrito' => 'sometimes|required|max:50',
+            'codigo' => 'required|unique:dw.dim_sucursal,codigo,'.$sucursal->sucursal_id.',sucursal_id|max:20',
+            'nombre' => 'required|max:100',
+            'provincia' => 'required|max:50',
+            'canton' => 'required|max:50',
+            'distrito' => 'required|max:50',
             'direccion_exacta' => 'nullable',
             'telefono' => 'nullable|max:20',
             'horario' => 'nullable',
-            'fecha_apertura' => 'sometimes|required|date',
+            'fecha_apertura' => 'required|date',
             'activa' => 'boolean'
         ]);
 
         $sucursal->update($validated);
-        return response()->json($sucursal);
+
+        return redirect()->route('sucursales.index')
+            ->with('success', 'Sucursal actualizada exitosamente');
     }
 
-    public function destroy($id)
+    public function destroy(DimensionStore $sucursal)
     {
-        Sucursal::findOrFail($id)->delete();
-        return response()->json(null, 204);
+        $sucursal->delete();
+        
+        return redirect()->route('sucursales.index')
+            ->with('success', 'Sucursal eliminada exitosamente');
     }
 }

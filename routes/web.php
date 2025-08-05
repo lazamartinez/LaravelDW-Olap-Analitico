@@ -1,21 +1,20 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SucursalController;
+use Illuminate\Support\Facades\Auth;
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+// Ruta principal
+Route::get('/', function () {
+    return redirect()->route('dashboard');
 });
 
-Route::apiResource('sucursales', SucursalController::class);
+// Dashboard
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-// Ruta para Vue (SPA)
-Route::get('/{any}', function () {
-    return view('app');
-})->where('any', '^(?!api).*$'); // Excluye rutas que empiecen con 'api'
+// Rutas para Sucursales
+Route::resource('sucursales', SucursalController::class);
 
-// Ruta API separada
-Route::prefix('api')->group(function () {
-    Route::apiResource('sucursales', SucursalController::class);
-});
+// Rutas de autenticación (si las necesitas)
+Auth::routes();
