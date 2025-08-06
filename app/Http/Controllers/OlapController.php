@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use App\Models\FactSale;
 use App\Models\DimensionTime;
 use App\Models\DimensionProduct;
@@ -12,6 +11,11 @@ use Illuminate\Support\Facades\DB;
 
 class OlapController extends Controller
 {
+    public function index()
+    {
+        return view('olap.analysis');
+    }
+
     public function loadAnalysis(Request $request)
     {
         $type = $request->input('analysis_type');
@@ -56,7 +60,6 @@ class OlapController extends Controller
 
     protected function salesAnalysisView($timeDimension, $metric)
     {
-        // Consulta OLAP de ejemplo: Ventas por periodo seleccionado
         $groupBy = '';
         $orderBy = '';
         
@@ -110,7 +113,7 @@ class OlapController extends Controller
             ->orderByDesc('total')
             ->get();
             
-        return view('olap.analysis.sales', compact('salesTrend', 'categoryDistribution', 'timeDimension', 'metric'))->render();
+        return view('olap.sales', compact('salesTrend', 'categoryDistribution', 'timeDimension', 'metric'))->render();
     }
     
     protected function getTimeDimensionSelect($dimension)

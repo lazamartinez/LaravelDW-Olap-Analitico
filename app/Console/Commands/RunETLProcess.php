@@ -9,158 +9,180 @@ use App\Models\DimensionTime;
 use App\Models\DimensionProduct;
 use App\Models\DimensionStore;
 use App\Models\DimensionCustomer;
+use Carbon\Carbon;
 
 class RunETLProcess extends Command
 {
-    protected $signature = 'etl:run {--incremental : Solo cargar datos nuevos}';
+    protected $signature = 'etl:run 
+        {--incremental : Solo cargar datos nuevos}
+        {--date= : Fecha específica para cargar datos (formato YYYY-MM-DD)}
+        {--branch=* : IDs de sucursales específicas para cargar}';
+    
     protected $description = 'Ejecuta el proceso ETL para cargar datos al Data Warehouse';
 
     public function handle()
     {
         $this->info('Iniciando proceso ETL...');
         
-        // 1. Extracción de datos de fuentes OLTP
-        $this->extractData();
+        try {
+            DB::beginTransaction();
+            
+            // 1. Extracción de datos
+            $extractedData = $this->extractData();
+            
+            if (empty($extractedData)) {
+                $this->warn('No se encontraron datos nuevos para procesar');
+                return;
+            }
+            
+            // 2. Transformación de datos
+            $transformedData = $this->transformData($extractedData);
+            
+            // 3. Carga de datos
+            $this->loadData($transformedData);
+            
+            DB::commit();
+            
+            $this->info('Proceso ETL completado con éxito.');
+            $this->info(sprintf(
+                'Resumen: %d productos, %d clientes, %d sucursales, %d ventas procesadas',
+                $transformedData['products'] ?? 0,
+                $transformedData['customers'] ?? 0,
+                $transformedData['stores'] ?? 0,
+                $transformedData['sales'] ?? 0
+            ));
+            
+        } catch (\Exception $e) {
+            DB::rollBack();
+            $this->error('Error en el proceso ETL: ' . $e->getMessage());
+            $this->error('Trace: ' . $e->getTraceAsString());
+            return 1;
+        }
         
-        // 2. Transformación de datos
-        $this->transformData();
-        
-        // 3. Carga de datos al DWH
-        $this->loadData();
-        
-        $this->info('Proceso ETL completado con éxito.');
+        return 0;
     }
     
     protected function extractData()
     {
         $this->info('Extrayendo datos de fuentes OLTP...');
         
-        // Aquí implementarías la lógica para extraer datos de las diferentes sucursales
-        // Puedes usar conexiones múltiples o FDW (Foreign Data Wrappers)
-        
-        // Ejemplo simplificado:
-        $branches = ['sucursal_a', 'sucursal_b', 'sucursal_c'];
+        $branches = $this->option('branch') ?: ['sucursal_a', 'sucursal_b', 'sucursal_c'];
+        $extractedData = [];
         
         foreach ($branches as $branch) {
             $this->info("Extrayendo datos de $branch...");
             
-            // Simular extracción
-            sleep(1);
+            // Simular extracción de datos de cada sucursal
+            $extractedData[$branch] = [
+                'products' => $this->simulateProductExtraction($branch),
+                'customers' => $this->simulateCustomerExtraction($branch),
+                'sales' => $this->simulateSalesExtraction($branch),
+            ];
             
-            $this->info("Datos de $branch extraídos correctamente.");
+            $this->info(sprintf(
+                "Datos de %s extraídos: %d productos, %d clientes, %d ventas",
+                $branch,
+                count($extractedData[$branch]['products']),
+                count($extractedData[$branch]['customers']),
+                count($extractedData[$branch]['sales'])
+            ));
         }
+        
+        return $extractedData;
     }
     
-    protected function transformData()
+    protected function transformData(array $extractedData)
     {
         $this->info('Transformando datos...');
         
-        // Aquí implementarías:
-        // - Limpieza de datos
-        // - Normalización
-        // - Transformación a modelo dimensional
-        // - Generación de claves sustitutas
+        $transformed = [
+            'products' => 0,
+            'customers' => 0,
+            'stores' => 0,
+            'sales' => 0,
+            'time_dimension' => []
+        ];
         
-        // Simular transformación
-        sleep(2);
+        // Procesar productos
+        foreach ($extractedData as $branch => $data) {
+            foreach ($data['products'] as $product) {
+                // Transformar y cargar producto
+                $transformed['products']++;
+            }
+            
+            // Procesar clientes, sucursales y ventas de manera similar
+            // ...
+        }
         
-        $this->info('Datos transformados correctamente.');
+        // Procesar dimensión tiempo para las fechas encontradas
+        $dates = []; // Obtener fechas únicas de las ventas
+        $this->loadTimeDimension($dates);
+        
+        return $transformed;
     }
     
-    protected function loadData()
+    protected function loadData(array $transformedData)
     {
         $this->info('Cargando datos al DWH...');
         
-        // Cargar dimensiones primero
         $this->loadDimensions();
-        
-        // Luego cargar hechos
         $this->loadFacts();
         
-        $this->info('Datos cargados al DWH correctamente.');
+        // Registrar ejecución del ETL
+        DB::table('etl_logs')->insert([
+            'execution_date' => now(),
+            'records_processed' => array_sum($transformedData),
+            'status' => 'completed',
+            'details' => json_encode($transformedData)
+        ]);
     }
     
-    protected function loadDimensions()
+    protected function loadTimeDimension(array $dates)
     {
-        $this->info('Cargando dimensiones...');
+        if (empty($dates)) {
+            $startDate = $this->option('date') 
+                ? Carbon::parse($this->option('date')) 
+                : now()->subYear();
+                
+            $endDate = now();
+            $dates = $this->generateDateRange($startDate, $endDate);
+        }
         
-        // Ejemplo para dim_tiempo (podrías usar un procedimiento almacenado en PostgreSQL)
-        $lastDate = DimensionTime::max('fecha');
-        $startDate = $lastDate ? $lastDate->addDay() : now()->subYears(2);
+        $existingDates = DimensionTime::pluck('fecha')->toArray();
+        $newDates = array_diff($dates, $existingDates);
         
-        $this->info("Generando datos para dim_tiempo desde $startDate...");
+        if (empty($newDates)) {
+            $this->info('No hay nuevas fechas para cargar en dim_tiempo');
+            return;
+        }
         
-        $current = clone $startDate;
-        $today = now();
+        $this->info(sprintf('Cargando %d nuevas fechas en dim_tiempo', count($newDates)));
+        
         $batch = [];
-        
-        while ($current <= $today) {
+        foreach ($newDates as $date) {
+            $date = Carbon::parse($date);
             $batch[] = [
-                'fecha' => $current->format('Y-m-d'),
-                'dia' => $current->day,
-                'mes' => $current->month,
-                'anio' => $current->year,
-                'trimestre' => ceil($current->month / 3),
-                'dia_semana' => $current->dayOfWeek,
-                'nombre_dia' => $current->dayName,
-                'nombre_mes' => $current->monthName,
-                'es_fin_semana' => $current->isWeekend(),
+                'fecha' => $date->format('Y-m-d'),
+                'dia' => $date->day,
+                'mes' => $date->month,
+                'anio' => $date->year,
+                'trimestre' => ceil($date->month / 3),
+                'dia_semana' => $date->dayOfWeek,
+                'nombre_dia' => $date->dayName,
+                'nombre_mes' => $date->monthName,
+                'es_fin_semana' => $date->isWeekend(),
             ];
             
             if (count($batch) >= 1000) {
                 DimensionTime::insert($batch);
                 $batch = [];
             }
-            
-            $current->addDay();
         }
         
         if (!empty($batch)) {
             DimensionTime::insert($batch);
         }
-        
-        $this->info('Dimensión tiempo cargada correctamente.');
-        
-        // Aquí cargarías otras dimensiones (producto, cliente, sucursal)
     }
     
-    protected function loadFacts()
-    {
-        $this->info('Cargando hechos...');
-        
-        // Aquí implementarías la carga de datos a fact_ventas
-        // Normalmente desde datos transformados en el paso anterior
-        
-        // Ejemplo simplificado:
-        $batchSize = 1000;
-        $totalRecords = 50000; // Esto vendría de tus datos transformados
-        $bar = $this->output->createProgressBar($totalRecords);
-        
-        for ($i = 0; $i < $totalRecords; $i += $batchSize) {
-            $batch = [];
-            
-            // Generar datos de ejemplo (en un caso real, estos vendrían de tus fuentes)
-            for ($j = 0; $j < $batchSize; $j++) {
-                $batch[] = [
-                    'tiempo_id' => rand(1, 730), // 2 años de datos
-                    'producto_id' => rand(1, 500),
-                    'cliente_id' => rand(1, 2000),
-                    'sucursal_id' => rand(1, 5),
-                    'cantidad_vendida' => rand(1, 10),
-                    'monto_total' => rand(50, 5000) / 10,
-                    'descuento_total' => rand(0, 100) / 10,
-                    'costo_total' => rand(30, 3000) / 10,
-                    'margen_ganancia' => rand(10, 40) / 10,
-                    'metodo_pago' => ['Efectivo', 'Tarjeta', 'Transferencia'][rand(0, 2)]
-                ];
-            }
-            
-            FactSale::insert($batch);
-            $bar->advance($batchSize);
-        }
-        
-        $bar->finish();
-        $this->newLine();
-        $this->info('Hechos cargados correctamente.');
-    }
+    // Métodos auxiliares...
 }

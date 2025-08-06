@@ -1,36 +1,30 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Models\FactSale;
+use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\SucursalController;
+use App\Http\Controllers\Api\OlapController;
+use App\Http\Controllers\EtlController;
 
-// Ruta accesible sin autenticación
-Route::get('/dashboard-data', function () {
-    try {
-        return response()->json([
-            'status' => 'success',
-            'data' => [
-                'total_sales' => FactSale::sum('monto_total') ?? 0,
-                'total_products' => FactSale::sum('cantidad_vendida') ?? 0,
-                'total_customers' => 1254, // Valor de ejemplo
-                'avg_margin' => 22.5, // Valor de ejemplo
-                'sales_trend' => [
-                    'labels' => ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
-                    'data' => [65000, 59000, 80000, 81000, 56000, 55000]
-                ],
-                'category_distribution' => [
-                    'labels' => ['Alimentos', 'Bebidas', 'Limpieza'],
-                    'data' => [35, 25, 20]
-                ]
-            ]
-        ]);
-    } catch (\Exception $e) {
-        return response()->json([
-            'status' => 'error',
-            'message' => $e->getMessage()
-        ], 500);
-    }
-});
+// Rutas públicas
+Route::get('/dashboard-data', [DashboardController::class, 'index']);
 
+// Rutas protegidas por autenticación
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/dashboard-data', [DashboardController::class, 'index']);
+    // Sucursales CRUD
+    Route::apiResource('sucursales', SucursalController::class);
+    Route::get('sucursales/{id}/metrics', [SucursalController::class, 'metrics']);
+    
+    // Operaciones OLAP
+    Route::prefix('olap')->group(function () {
+        Route::post('slice', [OlapController::class, 'slice']);
+        Route::post('dice', [OlapController::class, 'dice']);
+        Route::post('roll-up', [OlapController::class, 'rollUp']);
+        Route::post('drill-down', [OlapController::class, 'drillDown']);
+        Route::post('pivot', [OlapController::class, 'pivot']);
+        Route::post('load-analysis', [OlapController::class, 'loadAnalysis']);
+    });
+    
+    // ETL
+    Route::post('etl/run', [EtlController::class, 'runEtlProcess']);
 });
