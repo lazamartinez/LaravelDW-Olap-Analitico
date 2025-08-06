@@ -1,31 +1,36 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\SucursalController;
-use App\Http\Controllers\Api\OlapController;
+use App\Models\FactSale;
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+// Ruta accesible sin autenticación
+Route::get('/dashboard-data', function () {
+    try {
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'total_sales' => FactSale::sum('monto_total') ?? 0,
+                'total_products' => FactSale::sum('cantidad_vendida') ?? 0,
+                'total_customers' => 1254, // Valor de ejemplo
+                'avg_margin' => 22.5, // Valor de ejemplo
+                'sales_trend' => [
+                    'labels' => ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
+                    'data' => [65000, 59000, 80000, 81000, 56000, 55000]
+                ],
+                'category_distribution' => [
+                    'labels' => ['Alimentos', 'Bebidas', 'Limpieza'],
+                    'data' => [35, 25, 20]
+                ]
+            ]
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage()
+        ], 500);
+    }
 });
 
-// API OLAP
-Route::prefix('olap')->group(function () {
-    // Carga de análisis
-    Route::post('/load-analysis', [OlapController::class, 'loadAnalysis']);
-    
-    // Operaciones OLAP básicas
-    Route::post('/slice', [OlapController::class, 'slice']);
-    Route::post('/dice', [OlapController::class, 'dice']);
-    Route::post('/roll-up', [OlapController::class, 'rollUp']);
-    Route::post('/drill-down', [OlapController::class, 'drillDown']);
-    Route::post('/pivot', [OlapController::class, 'pivot']);
-    
-    // Métricas predefinidas
-    Route::get('/metrics', [OlapController::class, 'basicMetrics']);
-    Route::get('/sales-trend', [OlapController::class, 'salesTrend']);
-    Route::get('/product-performance', [OlapController::class, 'productPerformance']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/dashboard-data', [DashboardController::class, 'index']);
 });
-
-// API CRUD Sucursales
-Route::apiResource('sucursales', SucursalController::class);

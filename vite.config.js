@@ -101,8 +101,6 @@ export default defineConfig({
             scss: {
                 additionalData: `
                     @use "sass:math";
-                    @use "@/scss/variables" as *;
-                    @use "@/scss/mixins" as *;
                 `,
                 quietDeps: true,
                 importer: (url) => {
